@@ -38,6 +38,7 @@ foreach (glob(DATA_DIR . '/*.xml') as $file) {
 
 $outputFile = DATA_DIR . '/output.csv';
 $output = fopen($outputFile, 'w');
+fputcsv($output, array('Year', 'ISSN', 'Journal', 'Articles'));
 
 ksort($counts, SORT_NUMERIC);
 
@@ -45,7 +46,7 @@ foreach ($counts as $year => $issns) {
 	arsort($issns, SORT_NUMERIC);
 
 	foreach ($issns as $issn => $count) {
-		fputcsv($output, array($count, $year, $issn, $titles[$issn]));
+		fputcsv($output, array($year, $issn, $titles[$issn], $count));
 	}
 }
 
