@@ -84,7 +84,6 @@ for ($offset = 0; $offset <= $total; $offset += $limit) {
 	$errorNodes = $dom->getElementsByTagName('ERROR');
 
 	if ($errorNodes->length) {
-		print $errorNodes->item(0)->textContent;
-		exit();
+		exit($errorNodes->item(0)->textContent . "\n");
 	}
 }
