@@ -1,21 +1,28 @@
 <?php
 
+list($command, $db, $term) = $argv;
+
+if (!$db || !$term) {
+	exit("Usage: $command db term\n");
+}
+
 $params = array(
-	'db' => 'pubmed',
-	'retmode' => 'xml',
-	'term' => 'wellcome[GR]',
-	'retstart' => 0,
+	'db' => $db,
+	'term' => $term, // e.g. 'wellcome[GR]'
 	'retmax' => 0,
+	'retstart' => 0,
+	'retmode' => 'xml',
 	'usehistory' => 'y',
 );
 
-$url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' . http_build_query($params);
+$url = 'http://eutils.be-md.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?' . http_build_query($params);
 print "$url\n";
 
 $dom = new DOMDocument;
 $dom->load($url);
 
 $result = array(
+	'db' => $db,
 	'count' => $dom->getElementsByTagName('Count')->item(0)->textContent,
 	'webenv' => $dom->getElementsByTagName('WebEnv')->item(0)->textContent,
 	'querykey' => $dom->getElementsByTagName('QueryKey')->item(0)->textContent,

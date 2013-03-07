@@ -1,14 +1,16 @@
 <?php
 
-if (!isset($argv[1])) {
-	exit("Usage: {$argv[0]} result-file.json\n");
+list($command, $input) = $argv;
+
+if (!$input) {
+	exit("Usage: $command result-file.json\n");
 }
 
 if (!file_exists(__DIR__ . '/../data')) {
 	throw new Exception('Data directory at ../data/ does not exist');
 }
 
-$result = json_decode(file_get_contents($argv[1]), true);
+$result = json_decode(file_get_contents($input), true);
 print_r($result);
 
 if (!is_array($result) || !$result['count']) {
@@ -27,20 +29,20 @@ for ($offset = 0; $offset <= $total; $offset += $limit) {
 	print "\tFetching: $offset of $total\n";
 
 	$params = array(
-		'db' => 'pubmed',
-		'retmode' => 'xml',
-		'query_key' => $result['querykey'],
+		'db' => $result['db'],
 		'webenv' => $result['webenv'],
-		'retstart' => $offset,
+		'query_key' => $result['querykey'],
+		'retmode' => 'xml',
 		'retmax' => $limit,
+		'retstart' => $offset,
 	);
 
 	// prepare
-	$url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?' . http_build_query($params);
+	$url = 'http://eutils.be-md.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?' . http_build_query($params);
 	$file = sprintf(__DIR__ . '/../data/%s.xml', md5($url));
 
 	if (file_exists($file) && filesize($file)) {
-		return;
+		continue;
 	}
 
 	// fetch
@@ -78,4 +80,11 @@ for ($offset = 0; $offset <= $total; $offset += $limit) {
 
 	libxml_clear_errors();
 	libxml_use_internal_errors(false);
+
+	$errorNodes = $dom->getElementsByTagName('ERROR');
+
+	if ($errorNodes->length) {
+		print $errorNodes->item(0)->textContent;
+		exit();
+	}
 }

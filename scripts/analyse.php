@@ -1,5 +1,7 @@
 <?php
 
+define('DATA_DIR', realpath(__DIR__ . '/../data'));
+
 $xsl = new DOMDocument;
 $xsl->load(__DIR__ . '/transform.xsl');
 
@@ -9,7 +11,7 @@ $processor->importStylesheet($xsl);
 $counts = array();
 $titles = array();
 
-foreach (glob(__DIR__ . '/../data/*.xml') as $file) {
+foreach (glob(DATA_DIR . '/*.xml') as $file) {
 	print "Indexing $file\n";
 
 	$input = new DOMDocument;
@@ -34,7 +36,8 @@ foreach (glob(__DIR__ . '/../data/*.xml') as $file) {
 	}
 }
 
-$output = fopen(__DIR__ . '/../data/output.csv', 'w');
+$outputFile = DATA_DIR . '/output.csv';
+$output = fopen($outputFile, 'w');
 
 ksort($counts, SORT_NUMERIC);
 
@@ -45,4 +48,6 @@ foreach ($counts as $year => $issns) {
 		fputcsv($output, array($count, $year, $issn, $titles[$issn]));
 	}
 }
+
+print "Data written to $outputFile\n";
 
